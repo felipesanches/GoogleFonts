@@ -24,14 +24,30 @@ See each repo's own CLAUDE.md for detailed commands:
 
 ## Issue Tracking
 
-This project uses **bd (beads)** for issue tracking. See AGENTS.md for full workflow.
+Two beads issue trackers are maintained:
 
+### Central hub (this repo): broad Google Fonts coordination
 ```bash
 bd ready              # Find available work
-bd create "title" -p 1 -t task  # Create issue
+bd create --title="title" -p 1 -t task  # Create issue
 bd list               # List all issues
 bd close <id>         # Complete work
 ```
+
+### Fontspector (`/mnt/shared/fontspector`): fontspector-specific issues
+```bash
+bd --db /mnt/shared/fontspector/.beads/dolt list        # List open issues
+bd --db /mnt/shared/fontspector/.beads/dolt list --all   # Include closed
+bd --db /mnt/shared/fontspector/.beads/dolt ready        # Find available work
+```
+
+The fontspector beads tracker is populated from the public GitHub issue tracker at https://github.com/fonttools/fontspector/issues. Resync periodically with:
+```bash
+cd /mnt/shared/fontspector && python3 scripts/sync_github_issues.py
+```
+This script is idempotent: it skips issues already imported (matched by `[GitHub #N]` in the description).
+
+See AGENTS.md for full beads workflow.
 
 ## Strict Policies (Apply to ALL Google Fonts work)
 
