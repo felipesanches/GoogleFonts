@@ -89,6 +89,12 @@ PRs to google/fonts that enrich source metadata must follow the structure from P
 - Typeface name for typeface-specific pages and Google Fonts specimen links
 - No redundant "on Google Fonts" references
 
+### Fontspector Testing Policy
+- ALL fontspector checks MUST have code-tests
+- Code-tests MUST be implemented in Rust
+- If pre-existing Python tests exist, they MUST be ported to Rust and verified 100% equivalent to the Python ones they replace
+- No check may be merged or considered complete without corresponding Rust tests
+
 ### Language
 All code, comments, documentation, and commit messages must be in English.
 
