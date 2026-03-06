@@ -95,6 +95,12 @@ PRs to google/fonts that enrich source metadata must follow the structure from P
 - If pre-existing Python tests exist, they MUST be ported to Rust and verified 100% equivalent to the Python ones they replace
 - No check may be merged or considered complete without corresponding Rust tests
 
+### PR Submission Policy (STRICT)
+- A PR may ONLY be submitted after the code has been built successfully AND the full test suite passes with 0 failures
+- This includes all pre-existing tests AND any new tests added in the PR
+- Run `cargo build --all && cargo test --all` and verify 100% pass rate before submitting
+- If any test fails, fix it before submitting — never submit a PR with known test failures
+
 ### Language
 All code, comments, documentation, and commit messages must be in English.
 
