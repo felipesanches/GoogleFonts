@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Beads daemon files (tracked via JSONL)
+.beads/dolt/
+.beads/bd.sock
+.beads/daemon.lock
+.beads/daemon.pid
+.beads/daemon.log
+.beads/export-state/
+
+# Editor
+*.swp
+*.swo
+*~
