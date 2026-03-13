@@ -55,10 +55,9 @@ This script is idempotent: it skips issues already imported (matched by `[GitHub
 
 See AGENTS.md for full beads workflow.
 
-## Strict Policies (Apply to ALL Google Fonts work)
+---
 
-### HTTP to HTTPS Upgrades
-Any time you change a URL from http to https, you MUST verify the HTTPS URL works (returns HTTP 200). If it doesn't work, leave the original HTTP URL untouched. Never blindly upgrade URLs.
+## Tier 1: Universal Policies (Apply to ALL Google Fonts work)
 
 ### AI-Generated Content Disclaimer (STRICT)
 **Every public-facing post** made on behalf of @felipesanches MUST begin with a prominent warning. This applies to ALL of the following:
@@ -84,11 +83,20 @@ NEVER use `git push --force` or `git push --force-with-lease`. When doing follow
 ### Never Workaround Build/Test Errors
 If build or test errors are encountered, never work around them. Verify whether they are pre-existing (check on `main`). If they are pre-existing and not yet reported on the public issue tracker, file a new issue.
 
+### HTTP to HTTPS Upgrades
+Any time you change a URL from http to https, you MUST verify the HTTPS URL works (returns HTTP 200). If it doesn't work, leave the original HTTP URL untouched. Never blindly upgrade URLs.
+
 ### Model Attribution
 All investigation reports must include `**Model**: Claude Opus 4.6` (or whichever model generated them) in the header.
 
+### Commit Attribution
+Never use `Co-Authored-By:` for Claude or any other AI tool in commit messages. Instead, use: `Assisted by an AI agent (Claude Opus 4.6)` (citing the correct model used).
+
 ### Designer Profiles
 NEVER mention the "Arctic Code Vault" in designer profile pages.
+
+### Language
+All code, comments, documentation, and commit messages must be in English.
 
 ### Disk Space Monitoring
 - Run `df -h /mnt/shared` before any significant disk operation (cloning repos, etc.)
@@ -96,39 +104,10 @@ NEVER mention the "Arctic Code Vault" in designer profile pages.
 - Use shallow clones (`--depth 1`) when full history is not needed
 - NEVER modify upstream repos — they are read-only source of truth
 
-### Upstream Repo Cache
-All upstream font repos must be cloned to `/mnt/shared/upstream_repos/fontc_crater_cache/{owner}/{repo-name}`. Keep them clean (no local changes), synced, and with valid remotes.
+### Commit Policy
+Make commits frequently, whenever any small progress is achieved. Keep commits granular and atomic.
 
-### google/fonts PR Structure
-PRs to google/fonts that enrich source metadata must follow the structure from PR #10271:
-- One commit per family
-- Each commit: METADATA.pb + upstream_info.md + config.yaml (when applicable)
-- Concise commit message format (Repo/Commit/Config/Status/Confidence lines)
-- Full investigation report goes in upstream_info.md
-
-### Link Text Conventions
-- Domain name for website links
-- Platform name for social media
-- Typeface name for typeface-specific pages and Google Fonts specimen links
-- No redundant "on Google Fonts" references
-
-### Fontspector Testing Policy
-- ALL fontspector checks MUST have code-tests
-- Code-tests MUST be implemented in Rust
-- If pre-existing Python tests exist, they MUST be ported to Rust and verified 100% equivalent to the Python ones they replace
-- Once a Python test has been successfully ported to Rust, the original Python test MUST be deleted from the codebase — only the Rust replacement must remain
-- No check may be merged or considered complete without corresponding Rust tests
-
-### PR Submission Policy (STRICT)
-- A PR may ONLY be submitted after the code has been built successfully AND the full test suite passes with 0 failures
-- This includes all pre-existing tests AND any new tests added in the PR
-- Run `cargo build --all && cargo test --all` and verify 100% pass rate before submitting
-- If any test fails, fix it before submitting — never submit a PR with known test failures
-
-### Language
-All code, comments, documentation, and commit messages must be in English.
-
-## Message Logging (STRICT POLICY)
+### Message Logging (STRICT POLICY)
 
 All conversation messages must be logged to `data/message_log.json` (in the gfonts_agents repo at `/home/fsanches/projetos/gfonts_agents/`). This includes:
 - **User messages (role: "user") — MUST be logged verbatim, exactly as written**
@@ -141,7 +120,7 @@ All conversation messages must be logged to `data/message_log.json` (in the gfon
 - For Portuguese messages, include an English translation in addition to the verbatim original
 - Append new messages as they are received — do not batch at session end
 
-## Friday Status Update
+### Friday Status Update
 
 The Friday Status tab on the gfonts_agents dashboard provides a weekly status report for the Google Fonts team call:
 
@@ -151,28 +130,70 @@ The Friday Status tab on the gfonts_agents dashboard provides a weekly status re
 - Auto-generated from `data/message_log.json` entries within the time window
 - Ensure all significant accomplishments are logged so they appear in the Friday Status
 
-## Commit Policy
+---
 
-Make commits frequently, whenever any small progress is achieved. Keep commits granular and atomic. Auto-push gfonts_agents repo after each commit.
+## Tier 2: Cross-Repo Workflow Policies (google/fonts enrichment)
 
-## Progress Tracking
+### google/fonts PR Structure
+PRs to google/fonts that enrich source metadata must follow the structure from PR #10271:
+- One commit per family
+- Each commit: METADATA.pb + upstream_info.md + config.yaml (when applicable)
+- Concise commit message format (Repo/Commit/Config/Status/Confidence lines)
+- Full investigation report goes in upstream_info.md
 
-All progress on the source metadata enrichment effort is tracked in `data/gfonts_library_sources.json` (in gfonts_agents). This is the **source of truth**.
+### Investigation Report Requirements (STRICT)
+- Every font family MUST have an individual investigation report in `data/investigations/families/{family-slug}.md`
+- Each report must be the result of ACTUAL RESEARCH — reading METADATA.pb, checking git history, inspecting upstream repos, verifying commits, reading PR bodies
+- NEVER generate reports from templates or bulk scripts
+- Reports must describe what WAS DONE (past tense, active voice), not recommendations:
+  - **Initial state** — what was found (e.g., "METADATA.pb had no source block")
+  - **Actions taken** — what was done (e.g., "source block was added to METADATA.pb")
+  - **Final state** — what the PR delivers
+- upstream_info.md in PRs must have ALL `/mnt/shared` paths cleaned (use relative paths)
 
-Reference spreadsheet (read-only, may be inaccurate): https://docs.google.com/spreadsheets/d/1ao3k56FwQy6W0Ll5QbU_wpuKEvNPYcn8YyEU9_L8O4Q/edit?gid=0#gid=0
+### Override config.yaml (STRICT)
+When the upstream repo has gftools-builder compatible sources (.glyphs, .ufo, .designspace) but no config.yaml:
+- Create an override `config.yaml` in the google/fonts family directory
+- Do NOT set `config_yaml` in METADATA.pb (google-fonts-sources auto-detects local overrides)
+- Only mark "missing_config" if sources are truly incompatible (SFD-only, CID-keyed, VFB-only)
 
-## Context: Why Commit Hashes Matter
+### Commit Hash Verification
+gftools-packager commit hashes in google/fonts are HINTS, not facts. Onboarders sometimes started work with one commit, then made additional upstream fixes before merging. Always cross-verify with:
+1. Comparing binary file dates/sizes
+2. Checking if the commit predates the google/fonts merge
+3. Looking for later upstream commits before the merge date
+4. Checking PR discussion for corrections
 
+### Context: Why Commit Hashes Matter
 When fonts are compiled from upstream repos, there is a risk that type designers may have made additional changes after the last time fonts were added or updated in Google Fonts. Therefore, it is critical to reference the exact commit hashes that were originally used for onboarding. Any additional work done upstream after the recorded commit requires separate review and QA.
 
-## Build Configuration (config.yaml)
-
+### Build Configuration (config.yaml)
 Upstream repositories must have a `config.yaml` file containing gftools-builder configuration. The location is set in the `config_yaml` field inside the `source { ... }` block of `METADATA.pb`.
 
 **Important**: When an override `config.yaml` exists in the google/fonts family directory, the `config_yaml` field can be omitted from METADATA.pb. The google-fonts-sources tool auto-detects local overrides.
 
-## Fixing Missing or Incorrect Data
+### Link Text Conventions
+- Domain name for website links
+- Platform name for social media
+- Typeface name for typeface-specific pages and Google Fonts specimen links
+- No redundant "on Google Fonts" references
 
+### Upstream Repo Cache
+All upstream font repos must be cloned to `/mnt/shared/upstream_repos/fontc_crater_cache/{owner}/{repo-name}`. Keep them clean (no local changes), synced, and with valid remotes.
+
+### Repository Cleanliness (STRICT POLICY)
+All repositories in the upstream cache must be:
+1. **Clean**: No local uncommitted changes
+2. **Synced**: Up-to-date with remote (`git fetch origin`, then `git pull --ff-only`)
+3. **Verified remote**: Git remote URL must be valid and accessible
+
+### Google Fonts Repository — Keep Updated
+Before any operation that depends on METADATA.pb data, ensure the clone is up-to-date:
+```bash
+git -C /mnt/shared/google/fonts fetch origin && git -C /mnt/shared/google/fonts pull --ff-only
+```
+
+### Fixing Missing or Incorrect Data
 When data is missing or incorrect (missing config.yaml, commit hash, wrong repository_url):
 1. Determine correct settings from upstream repos, PR history, font structure
 2. Prepare a PR to google/fonts to fix the data
@@ -180,39 +201,25 @@ When data is missing or incorrect (missing config.yaml, commit hash, wrong repos
 
 PRs to be created are tracked in `data/pending_prs.json` on the gfonts_agents dashboard.
 
-## Validation Strategies
-
+### Validation Strategies
 To identify original onboarding commits:
 1. Check binary file history of .ttf files in google/fonts
 2. Analyze commit messages for upstream repo URLs, commit hashes, PR references
 3. Trace linked PRs — read full PR history for context
 
-## Pending Questions
-
+### Pending Questions
 When there is uncertainty about onboarding, save questions to `data/pending_questions.json` (in gfonts_agents). Group by the specific person best positioned to answer. Only use generic categories like "Google Fonts team" as a last resort.
 
-## Google Fonts Repository — Keep Updated
+### Progress Tracking
+All progress on the source metadata enrichment effort is tracked in `data/gfonts_library_sources.json` (in gfonts_agents). This is the **source of truth**.
 
-Before any operation that depends on METADATA.pb data, ensure the clone is up-to-date:
-```bash
-git -C /mnt/shared/google/fonts fetch origin && git -C /mnt/shared/google/fonts pull --ff-only
-```
+Reference spreadsheet (read-only, may be inaccurate): https://docs.google.com/spreadsheets/d/1ao3k56FwQy6W0Ll5QbU_wpuKEvNPYcn8YyEU9_L8O4Q/edit?gid=0#gid=0
 
-## Repository Cleanliness (STRICT POLICY)
+---
 
-All repositories in the upstream cache must be:
-1. **Clean**: No local uncommitted changes
-2. **Synced**: Up-to-date with remote (`git fetch origin`, then `git pull --ff-only`)
-3. **Verified remote**: Git remote URL must be valid and accessible
+## Infrastructure
 
-## Tech Stack (gfonts_agents dashboard)
-
-- Static site (HTML, CSS, vanilla JavaScript)
-- No build tools or frameworks
-- Must be compatible with GitHub Pages
-- Run locally: `cd /home/fsanches/projetos/gfonts_agents && ./run.sh`
-
-## Dolt Server
+### Dolt Server
 
 Beads requires a running Dolt server. To start it:
 
