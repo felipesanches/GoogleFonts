@@ -116,6 +116,7 @@ PRs to google/fonts that enrich source metadata must follow the structure from P
 - ALL fontspector checks MUST have code-tests
 - Code-tests MUST be implemented in Rust
 - If pre-existing Python tests exist, they MUST be ported to Rust and verified 100% equivalent to the Python ones they replace
+- Once a Python test has been successfully ported to Rust, the original Python test MUST be deleted from the codebase — only the Rust replacement must remain
 - No check may be merged or considered complete without corresponding Rust tests
 
 ### PR Submission Policy (STRICT)
@@ -126,6 +127,90 @@ PRs to google/fonts that enrich source metadata must follow the structure from P
 
 ### Language
 All code, comments, documentation, and commit messages must be in English.
+
+## Message Logging (STRICT POLICY)
+
+All conversation messages must be logged to `data/message_log.json` (in the gfonts_agents repo at `/home/fsanches/projetos/gfonts_agents/`). This includes:
+- **User messages (role: "user") — MUST be logged verbatim, exactly as written**
+- **Assistant messages (role: "assistant") — MUST be logged (summarized is OK, but never omitted)**
+
+**Important**:
+- User messages must be preserved word-for-word without any modification or summarization
+- Assistant messages must always be logged so the conversation is coherent and readable
+- The log should allow anyone reading it to understand the full context of the conversation
+- For Portuguese messages, include an English translation in addition to the verbatim original
+- Append new messages as they are received — do not batch at session end
+
+## Friday Status Update
+
+The Friday Status tab on the gfonts_agents dashboard provides a weekly status report for the Google Fonts team call:
+
+- **Time window**: Friday 2:00 PM (GMT-3) to the following Friday 1:00 PM (GMT-3)
+- **Content**: All significant work accomplished during that week
+- **Sections**: What was done this week / Planned for next week / Questions for the team
+- Auto-generated from `data/message_log.json` entries within the time window
+- Ensure all significant accomplishments are logged so they appear in the Friday Status
+
+## Commit Policy
+
+Make commits frequently, whenever any small progress is achieved. Keep commits granular and atomic. Auto-push gfonts_agents repo after each commit.
+
+## Progress Tracking
+
+All progress on the source metadata enrichment effort is tracked in `data/gfonts_library_sources.json` (in gfonts_agents). This is the **source of truth**.
+
+Reference spreadsheet (read-only, may be inaccurate): https://docs.google.com/spreadsheets/d/1ao3k56FwQy6W0Ll5QbU_wpuKEvNPYcn8YyEU9_L8O4Q/edit?gid=0#gid=0
+
+## Context: Why Commit Hashes Matter
+
+When fonts are compiled from upstream repos, there is a risk that type designers may have made additional changes after the last time fonts were added or updated in Google Fonts. Therefore, it is critical to reference the exact commit hashes that were originally used for onboarding. Any additional work done upstream after the recorded commit requires separate review and QA.
+
+## Build Configuration (config.yaml)
+
+Upstream repositories must have a `config.yaml` file containing gftools-builder configuration. The location is set in the `config_yaml` field inside the `source { ... }` block of `METADATA.pb`.
+
+**Important**: When an override `config.yaml` exists in the google/fonts family directory, the `config_yaml` field can be omitted from METADATA.pb. The google-fonts-sources tool auto-detects local overrides.
+
+## Fixing Missing or Incorrect Data
+
+When data is missing or incorrect (missing config.yaml, commit hash, wrong repository_url):
+1. Determine correct settings from upstream repos, PR history, font structure
+2. Prepare a PR to google/fonts to fix the data
+3. Use override files when upstream repos may not respond quickly
+
+PRs to be created are tracked in `data/pending_prs.json` on the gfonts_agents dashboard.
+
+## Validation Strategies
+
+To identify original onboarding commits:
+1. Check binary file history of .ttf files in google/fonts
+2. Analyze commit messages for upstream repo URLs, commit hashes, PR references
+3. Trace linked PRs — read full PR history for context
+
+## Pending Questions
+
+When there is uncertainty about onboarding, save questions to `data/pending_questions.json` (in gfonts_agents). Group by the specific person best positioned to answer. Only use generic categories like "Google Fonts team" as a last resort.
+
+## Google Fonts Repository — Keep Updated
+
+Before any operation that depends on METADATA.pb data, ensure the clone is up-to-date:
+```bash
+git -C /mnt/shared/google/fonts fetch origin && git -C /mnt/shared/google/fonts pull --ff-only
+```
+
+## Repository Cleanliness (STRICT POLICY)
+
+All repositories in the upstream cache must be:
+1. **Clean**: No local uncommitted changes
+2. **Synced**: Up-to-date with remote (`git fetch origin`, then `git pull --ff-only`)
+3. **Verified remote**: Git remote URL must be valid and accessible
+
+## Tech Stack (gfonts_agents dashboard)
+
+- Static site (HTML, CSS, vanilla JavaScript)
+- No build tools or frameworks
+- Must be compatible with GitHub Pages
+- Run locally: `cd /home/fsanches/projetos/gfonts_agents && ./run.sh`
 
 ## Dolt Server
 
