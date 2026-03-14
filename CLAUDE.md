@@ -221,9 +221,9 @@ After **every** reproducible build batch completes, you MUST sync all results to
 1. **`data/gfonts_library_sources.json`** — copy the `reproducible_build` status from `build_registry.json` into each family's entry (keyed by directory name extracted from the `path` field). Powers the main sources table.
 
 2. **`data/build_system.json`** — regenerate from `build_registry.json` + per-family comparison reports at `/mnt/shared/gfonts-repro-builds/*/comparison_report.json`. Must include:
-   - `summary` — processed, total_buildable, per-status counts, untested
+   - `summary` — processed, total_buildable, per-status counts, untested (powers summary cards)
    - `root_cause_summary` — per root-cause counts (from `files[].analysis.root_cause` in reports)
-   - `reflow_risk_summary` — per risk-level counts (from `files[].analysis.metrics.reflow_risk`)
+   - `reflow_risk_summary` — per risk-level counts (from `files[].analysis.metrics.reflow_risk`; powers the "How these numbers are calculated" coherence note and the Reflow Risk Assessment panel)
    - `families[]` — per-family status + `files{}` with deep analysis (byte_identical, root_cause, glyph_stats, ttfautohint, metrics)
 
 3. **`data/reproducible-build-system.md`** — update the Status line, Status Breakdown table, Byte-Identical Families list, Root Cause Breakdown table, and Key Insights with current numbers.
