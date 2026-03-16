@@ -215,24 +215,24 @@ All progress on the source metadata enrichment effort is tracked in `data/gfonts
 
 Reference spreadsheet (read-only, may be inaccurate): https://docs.google.com/spreadsheets/d/1ao3k56FwQy6W0Ll5QbU_wpuKEvNPYcn8YyEU9_L8O4Q/edit?gid=0#gid=0
 
-### Reproducible Build Dashboard Sync (MANDATORY)
-After **every** reproducible build batch completes, you MUST sync all results to the gfonts_agents dashboard before doing anything else. A sync requires updating ALL FOUR of these files in the gfonts_agents repo:
+### Dashboard Coherence (STRICT POLICY)
+The dashboard must ALWAYS be fully coherent. Any action that changes build results, normalization results, or family metadata MUST be reflected across ALL pages that depend on that data.
 
-1. **`data/gfonts_library_sources.json`** — copy the `reproducible_build` status from `build_registry.json` into each family's entry (keyed by directory name extracted from the `path` field). Powers the main sources table.
+**Sync script**: Use `python scripts/sync_dashboard.py --apply --commit` in the gfonts_agents repo. This is the ONLY sanctioned way to update dashboard data. It:
+1. Reads from the canonical sources of truth (build_registry.json, normalization_results.json)
+2. Propagates changes to ALL dependent files (gfonts_library_sources.json, build_system.json)
+3. Validates coherence before and after sync
+4. Commits and pushes if `--commit` is passed
 
-2. **`data/build_system.json`** — regenerate from `build_registry.json` + per-family comparison reports at `/mnt/shared/gfonts-repro-builds/*/comparison_report.json`. Must include:
-   - `summary` — processed, total_buildable, per-status counts, untested (powers summary cards)
-   - `root_cause_summary` — per root-cause counts (from `files[].analysis.root_cause` in reports)
-   - `reflow_risk_summary` — per risk-level counts (from `files[].analysis.metrics.reflow_risk`; powers the "How these numbers are calculated" coherence note and the Reflow Risk Assessment panel)
-   - `families[]` — per-family status + `files{}` with deep analysis (byte_identical, root_cause, glyph_stats, ttfautohint, metrics)
+**Validation**: Run `python scripts/sync_dashboard.py` (no flags) to check coherence without making changes. This reports any inconsistencies between data files.
 
-3. **`data/reproducible-build-system.md`** — update the Status line, Status Breakdown table, Byte-Identical Families list, Root Cause Breakdown table, Reflow Risk table, and Key Insights with current numbers.
+**After every batch of builds or normalization runs**, you MUST run the sync script. The sync ensures:
+- `data/gfonts_library_sources.json` — reproducible_build status per family, status=complete for families that build successfully, summary counts match actual data
+- `data/build_system.json` — summary counts match build_registry.json, normalized_match matches normalization_results.json
+- `data/build_failure_categories.json` — append new timestamped snapshot if failure counts changed
+- `data/reproducible-build-system.md` — update all tables and counts
 
-4. **`data/build_failure_categories.json`** — append a new timestamped snapshot with per-category failure counts. Powers the Build Failures page historical charts.
-
-After updating all four files: `git add`, `git commit`, `git push origin main`.
-
-**NO EXCEPTIONS.** A batch is not complete until the dashboard reflects its results.
+**NO EXCEPTIONS.** A batch is not complete until `sync_dashboard.py` reports "All data is coherent."
 
 ---
 
