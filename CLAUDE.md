@@ -232,7 +232,9 @@ The dashboard must ALWAYS be fully coherent. Any action that changes build resul
 - `data/build_failure_categories.json` — append new timestamped snapshot if failure counts changed
 - `data/reproducible-build-system.md` — update all tables and counts
 
-**NO EXCEPTIONS.** A batch is not complete until `sync_dashboard.py` reports "All data is coherent."
+**fontc Crater Analysis**: Whenever the dashboard is updated, also run `python scripts/fetch_crater_analysis.py` in the gfonts_agents repo to refresh the fontc_crater data. Commit the updated `data/fontc_crater_analysis.json`.
+
+**NO EXCEPTIONS.** A batch is not complete until `sync_dashboard.py` reports "All data is coherent" AND `fetch_crater_analysis.py` has been run.
 
 ---
 
