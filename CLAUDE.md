@@ -150,6 +150,7 @@ PRs to google/fonts that enrich source metadata must follow the structure from P
   - **Actions taken** — what was done (e.g., "source block was added to METADATA.pb")
   - **Final state** — what the PR delivers
 - upstream_info.md in PRs must have ALL `/mnt/shared` paths cleaned (use relative paths)
+- When updating a family's upstream repo to a newer fork, ALWAYS preserve full details of the original/older repository (file listings, commit history, owner info) in a clearly labeled section (e.g., "Original Repository (dormant)"). Never discard old repo information.
 
 ### Override config.yaml (STRICT)
 When the upstream repo has gftools-builder compatible sources (.glyphs, .ufo, .designspace) but no config.yaml:
