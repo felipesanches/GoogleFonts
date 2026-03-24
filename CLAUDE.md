@@ -13,7 +13,8 @@ This is the central coordination repository for all Google Fonts-related work by
 | **gftools** | `/mnt/shared/gftools` | Google Fonts CLI toolkit (build, fix, validate fonts) |
 | **fontspector** | `/mnt/shared/fontspector` | Rust-based font QA tool (fontbakery port) |
 | **gfonts_agents** | `/home/fsanches/projetos/gfonts_agents` | Dashboard & investigation reports for GF source metadata |
-| **upstream repo cache** | `/mnt/shared/upstream_repos/fontc_crater_cache/` | Local clones of all upstream font repos (`{owner}/{repo}`) |
+| **upstream repo archive** | `/mnt/shared/upstream_repos/repo_archive/` | Permanent bare git mirrors (`--mirror`) of all upstream font repos (`{owner}/{repo}.git`). **STRICT: never delete repos from the archive.** |
+| **upstream repo cache (legacy)** | `/mnt/shared/upstream_repos/fontc_crater_cache/` | Legacy shallow clones from earlier work. Preserved but superseded by the repo archive. |
 
 ### Repo-Specific Build/Test Commands
 
@@ -179,13 +180,24 @@ Upstream repositories must have a `config.yaml` file containing gftools-builder 
 - Typeface name for typeface-specific pages and Google Fonts specimen links
 - No redundant "on Google Fonts" references
 
-### Upstream Repo Cache
-All upstream font repos must be cloned to `/mnt/shared/upstream_repos/fontc_crater_cache/{owner}/{repo-name}`. Keep them clean (no local changes), synced, and with valid remotes.
+### Upstream Repo Archive (STRICT POLICY)
+The permanent archive of upstream font source repos lives at `/mnt/shared/upstream_repos/repo_archive/{owner}/{repo}.git`. These are **bare git mirrors** cloned with `git clone --mirror`.
+
+**Strict rules:**
+1. **Never delete** repos from the archive. The archive is append-only.
+2. **Always use `--mirror`** when cloning. All repos must be bare.
+3. **Never modify** the archived repos — they are read-only mirrors of upstream.
+4. **Terminology**: Call this the "repo archive", never "cache". (The legacy path `fontc_crater_cache/` predates this policy.)
+5. **To build from archived sources**: Create a temporary working copy (`git clone /path/to/mirror.git /tmp/workdir`), never checkout inside the mirror itself.
+6. **To update**: `git -C /path/to/repo.git remote update` fetches new upstream refs.
+
+### Legacy Upstream Repo Cache
+The old cache at `/mnt/shared/upstream_repos/fontc_crater_cache/` contains shallow clones from earlier work. It is preserved but superseded by the repo archive. Do not add new repos there.
 
 ### Repository Cleanliness (STRICT POLICY)
-All repositories in the upstream cache must be:
-1. **Clean**: No local uncommitted changes
-2. **Synced**: Up-to-date with remote (`git fetch origin`, then `git pull --ff-only`)
+All repositories in the upstream archive must be:
+1. **Bare mirrors**: Cloned with `--mirror`, no working tree
+2. **Synced**: Periodically updated with `git remote update`
 3. **Verified remote**: Git remote URL must be valid and accessible
 
 ### Google Fonts Repository — Keep Updated
