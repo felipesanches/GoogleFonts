@@ -265,3 +265,15 @@ If `/tmp/dolt-beads` doesn't exist:
 ```bash
 mkdir -p /tmp/dolt-beads && cd /tmp/dolt-beads && dolt init && nohup dolt sql-server --host 127.0.0.1 --port 3307 > /tmp/dolt-server.log 2>&1 &
 ```
+
+### Beads Persistence (STRICT POLICY)
+
+**WARNING:** The Dolt server in `/tmp` is volatile — data is lost on reboot. Beads issues must ALWAYS be persisted to git.
+
+After **every** beads write operation (`bd create`, `bd update`, `bd close`):
+```bash
+bd list --json | python3 -c "import sys,json; [open('.beads/issues.jsonl','w').write(''.join(json.dumps(i)+'\n' for i in json.load(sys.stdin)))]"
+git add .beads/issues.jsonl && git commit -m "Update beads issues" && git push
+```
+
+**Never** rely solely on the Dolt database for issue persistence. The `.beads/issues.jsonl` file in git is the durable backup.
