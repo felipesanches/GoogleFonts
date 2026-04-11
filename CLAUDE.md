@@ -1,5 +1,12 @@
 # Google Fonts Central Hub
 
+> ℹ️ **Beads note (2026-04-10):** This repo and `fontspector` use **regular
+> `bd`** (Dolt backend) — they are Category B "empty-shell" repos from the
+> 2026-04 beads/dolt transition. However, if you ever work on the 6 SQLite-era
+> repos (`accessvirus`, `catalog_of_ideias`, `galaxyforce2`, `gfonts_agents`,
+> `kn5000_project`, `kn5000-roms-disasm`), you must use `beads-lite` there,
+> NOT `bd`. Full policy: `~/compartilhado/FSanches/beads-usage-policy.md`.
+
 This is the central coordination repository for all Google Fonts-related work by @felipesanches. All work sessions start here.
 
 ## Related Repositories
