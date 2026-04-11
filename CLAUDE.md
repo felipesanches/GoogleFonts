@@ -8,19 +8,19 @@ This is the central coordination repository for all Google Fonts-related work by
 
 | Repo | Path | Description |
 |------|------|-------------|
-| **google/fonts** | `/mnt/shared/gfonts` | Main Google Fonts repo (font binaries, METADATA.pb) |
-| **google/fonts (working copy)** | `/mnt/shared/google/fonts` | Working copy for PR preparation |
-| **gftools** | `/mnt/shared/gftools` | Google Fonts CLI toolkit (build, fix, validate fonts) |
-| **fontspector** | `/mnt/shared/fontspector` | Rust-based font QA tool (fontbakery port) |
+| **google/fonts** | `/home/fsanches/compartilhado/gfonts` | Main Google Fonts repo (font binaries, METADATA.pb) |
+| **google/fonts (working copy)** | `/home/fsanches/compartilhado/google/fonts` | Working copy for PR preparation |
+| **gftools** | `/home/fsanches/compartilhado/gftools` | Google Fonts CLI toolkit (build, fix, validate fonts) |
+| **fontspector** | `/home/fsanches/compartilhado/fontspector` | Rust-based font QA tool (fontbakery port) |
 | **gfonts_agents** | `/home/fsanches/projetos/gfonts_agents` | Dashboard & investigation reports for GF source metadata |
-| **upstream repo archive** | `/mnt/shared/upstream_repos/repo_archive/` | Permanent bare git mirrors (`--mirror`) of all upstream font repos (`{owner}/{repo}.git`). **STRICT: never delete repos from the archive.** |
-| **upstream repo cache (legacy)** | `/mnt/shared/upstream_repos/fontc_crater_cache/` | Legacy shallow clones from earlier work. Preserved but superseded by the repo archive. |
+| **upstream repo archive** | `/home/fsanches/compartilhado/upstream_repos/repo_archive/` | Permanent bare git mirrors (`--mirror`) of all upstream font repos (`{owner}/{repo}.git`). **STRICT: never delete repos from the archive.** |
+| **upstream repo cache (legacy)** | `/home/fsanches/compartilhado/upstream_repos/fontc_crater_cache/` | Legacy shallow clones from earlier work. Preserved but superseded by the repo archive. |
 
 ### Repo-Specific Build/Test Commands
 
 See each repo's own CLAUDE.md for detailed commands:
-- fontspector: `/mnt/shared/fontspector/CLAUDE.md`
-- gftools: `/mnt/shared/gftools/CLAUDE.md`
+- fontspector: `/home/fsanches/compartilhado/fontspector/CLAUDE.md`
+- gftools: `/home/fsanches/compartilhado/gftools/CLAUDE.md`
 - gfonts_agents: `/home/fsanches/projetos/gfonts_agents/CLAUDE.md`
 
 ## Issue Tracking
@@ -35,18 +35,18 @@ bd list               # List all issues
 bd close <id>         # Complete work
 ```
 
-### Fontspector (`/mnt/shared/fontspector`): fontspector-specific issues
+### Fontspector (`/home/fsanches/compartilhado/fontspector`): fontspector-specific issues
 ```bash
-bd --db /mnt/shared/fontspector/.beads/dolt list        # List open issues
-bd --db /mnt/shared/fontspector/.beads/dolt list --all   # Include closed
-bd --db /mnt/shared/fontspector/.beads/dolt ready        # Find available work
+bd --db /home/fsanches/compartilhado/fontspector/.beads/dolt list        # List open issues
+bd --db /home/fsanches/compartilhado/fontspector/.beads/dolt list --all   # Include closed
+bd --db /home/fsanches/compartilhado/fontspector/.beads/dolt ready        # Find available work
 ```
 
 The fontspector beads tracker is a **local-only** cache for our own planning and coordination. It must be kept in sync with the public GitHub issue tracker.
 
 **Syncing from GitHub:**
 ```bash
-cd /mnt/shared/fontspector && python3 scripts/sync_github_issues.py
+cd /home/fsanches/compartilhado/fontspector && python3 scripts/sync_github_issues.py
 ```
 This script is idempotent: it skips issues already imported (matched by `[GitHub #N]` in the description). **Resync regularly** — at minimum at the start of every work session and before planning new work.
 
@@ -99,8 +99,11 @@ NEVER mention the "Arctic Code Vault" in designer profile pages.
 ### Language
 All code, comments, documentation, and commit messages must be in English.
 
+### No Volatile Storage (STRICT)
+Never place anything of lasting value in `/tmp` or any other volatile location (tmpfs, ramdisk, etc.). `/tmp` is wiped on reboot. Always use persistent paths (`/home/fsanches/compartilhado/`, home directory) for working copies, research notes, build outputs, or any data we want to keep. Reserve `/tmp` strictly for truly ephemeral throwaway files that will be immediately consumed and discarded.
+
 ### Disk Space Monitoring
-- Run `df -h /mnt/shared` before any significant disk operation (cloning repos, etc.)
+- Run `df -h /home/fsanches/compartilhado` before any significant disk operation (cloning repos, etc.)
 - Refuse to work when free disk space < 15 GB
 - Use shallow clones (`--depth 1`) when full history is not needed
 - NEVER modify upstream repos — they are read-only source of truth
@@ -150,7 +153,7 @@ PRs to google/fonts that enrich source metadata must follow the structure from P
   - **Initial state** — what was found (e.g., "METADATA.pb had no source block")
   - **Actions taken** — what was done (e.g., "source block was added to METADATA.pb")
   - **Final state** — what the PR delivers
-- upstream_info.md in PRs must have ALL `/mnt/shared` paths cleaned (use relative paths)
+- upstream_info.md in PRs must have ALL `/home/fsanches/compartilhado` paths cleaned (use relative paths)
 - When updating a family's upstream repo to a newer fork, ALWAYS preserve full details of the original/older repository (file listings, commit history, owner info) in a clearly labeled section (e.g., "Original Repository (dormant)"). Never discard old repo information.
 
 ### Override config.yaml (STRICT)
@@ -181,7 +184,7 @@ Upstream repositories must have a `config.yaml` file containing gftools-builder 
 - No redundant "on Google Fonts" references
 
 ### Upstream Repo Archive (STRICT POLICY)
-The permanent archive of upstream font source repos lives at `/mnt/shared/upstream_repos/repo_archive/{owner}/{repo}.git`. These are **bare git mirrors** cloned with `git clone --mirror`.
+The permanent archive of upstream font source repos lives at `/home/fsanches/compartilhado/upstream_repos/repo_archive/{owner}/{repo}.git`. These are **bare git mirrors** cloned with `git clone --mirror`.
 
 **Strict rules:**
 1. **Never delete** repos from the archive. The archive is append-only.
@@ -192,7 +195,7 @@ The permanent archive of upstream font source repos lives at `/mnt/shared/upstre
 6. **To update**: `git -C /path/to/repo.git remote update` fetches new upstream refs.
 
 ### Legacy Upstream Repo Cache
-The old cache at `/mnt/shared/upstream_repos/fontc_crater_cache/` contains shallow clones from earlier work. It is preserved but superseded by the repo archive. Do not add new repos there.
+The old cache at `/home/fsanches/compartilhado/upstream_repos/fontc_crater_cache/` contains shallow clones from earlier work. It is preserved but superseded by the repo archive. Do not add new repos there.
 
 ### Repository Cleanliness (STRICT POLICY)
 All repositories in the upstream archive must be:
@@ -203,7 +206,7 @@ All repositories in the upstream archive must be:
 ### Google Fonts Repository — Keep Updated
 Before any operation that depends on METADATA.pb data, ensure the clone is up-to-date:
 ```bash
-git -C /mnt/shared/google/fonts fetch origin && git -C /mnt/shared/google/fonts pull --ff-only
+git -C /home/fsanches/compartilhado/google/fonts fetch origin && git -C /home/fsanches/compartilhado/google/fonts pull --ff-only
 ```
 
 ### Fixing Missing or Incorrect Data
