@@ -141,6 +141,25 @@ The Friday Status tab on the gfonts_agents dashboard provides a weekly status re
 - Auto-generated from `data/message_log.json` entries within the time window
 - Ensure all significant accomplishments are logged so they appear in the Friday Status
 
+### Parallel Agents Across Sibling Repos (STRICT)
+
+When launching parallel `Agent` calls with `isolation: "worktree"` from this hub (`/home/fsanches/compartilhado/GoogleFonts`) but having the agents actually work in a sibling repo (e.g. `/home/fsanches/compartilhado/google/fonts`), the Agent tool's built-in isolation creates the worktree off the *hub* repo — which is the wrong repo. The agents land in a directory with no `ofl/` tree, get confused, and fall back to operating on the shared sibling working copy. The happy path works by luck (git's index lock serializes them); the unhappy path corrupts a clone with uncommitted changes.
+
+**Rules:**
+
+1. **Do not rely on `isolation: "worktree"` when the target repo is a sibling.** It will worktree the wrong repo.
+2. **Each agent prompt must explicitly set up its own worktree in the target repo.** Include:
+   ```
+   Run once at the start of your work:
+     git -C /home/fsanches/compartilhado/google/fonts worktree add \
+       /home/fsanches/compartilhado/google/fonts-worktrees/<branch-name> main
+     cd /home/fsanches/compartilhado/google/fonts-worktrees/<branch-name>
+   Do ALL work inside that directory.
+   ```
+3. **Pick a worktree parent adjacent to the target repo**, not under the hub: `/home/fsanches/compartilhado/google/fonts-worktrees/` (sibling), not `/home/fsanches/compartilhado/GoogleFonts/.claude/worktrees/` (under hub).
+4. **After all agents complete**, verify with `git -C <target-repo> worktree list` and `git -C <target-repo> branch --list <pattern>` that each landed a branch based on `main` with only the expected files touched.
+5. **Clean up at the end**: switch the primary working copy back to `main`; leave the sibling worktrees in place until the PRs merge (they're cheap and contain the branch refs), then remove with `git worktree remove` after merge.
+
 ---
 
 ## Tier 2: Cross-Repo Workflow Policies (google/fonts enrichment)
