@@ -19,7 +19,7 @@ This is the central coordination repository for all Google Fonts-related work by
 | **google/fonts (working copy)** | `/home/fsanches/compartilhado/google/fonts` | Working copy for PR preparation |
 | **gftools** | `/home/fsanches/compartilhado/gftools` | Google Fonts CLI toolkit (build, fix, validate fonts) |
 | **fontspector** | `/home/fsanches/compartilhado/fontspector` | Rust-based font QA tool (fontbakery port) |
-| **gfonts_agents** | `/home/fsanches/projetos/gfonts_agents` | Dashboard & investigation reports for GF source metadata |
+| **gfonts_agents** | `/home/fsanches/compartilhado/gfonts_agents` | Dashboard & investigation reports for GF source metadata |
 | **upstream repo archive** | `/home/fsanches/compartilhado/upstream_repos/repo_archive/` | Permanent bare git mirrors (`--mirror`) of all upstream font repos (`{owner}/{repo}.git`). **STRICT: never delete repos from the archive.** |
 | **upstream repo cache (legacy)** | `/home/fsanches/compartilhado/upstream_repos/fontc_crater_cache/` | Legacy shallow clones from earlier work. Preserved but superseded by the repo archive. |
 
@@ -28,7 +28,7 @@ This is the central coordination repository for all Google Fonts-related work by
 See each repo's own CLAUDE.md for detailed commands:
 - fontspector: `/home/fsanches/compartilhado/fontspector/CLAUDE.md`
 - gftools: `/home/fsanches/compartilhado/gftools/CLAUDE.md`
-- gfonts_agents: `/home/fsanches/projetos/gfonts_agents/CLAUDE.md`
+- gfonts_agents: `/home/fsanches/compartilhado/gfonts_agents/CLAUDE.md`
 
 ## Issue Tracking
 
@@ -120,7 +120,7 @@ Make commits frequently, whenever any small progress is achieved. Keep commits g
 
 ### Message Logging (STRICT POLICY)
 
-All conversation messages must be logged to `data/message_log.json` (in the gfonts_agents repo at `/home/fsanches/projetos/gfonts_agents/`). This includes:
+All conversation messages must be logged to `data/message_log.json` (in the gfonts_agents repo at `/home/fsanches/compartilhado/gfonts_agents/`). This includes:
 - **User messages (role: "user") — MUST be logged verbatim, exactly as written**
 - **Assistant messages (role: "assistant") — MUST be logged (summarized is OK, but never omitted)**
 
