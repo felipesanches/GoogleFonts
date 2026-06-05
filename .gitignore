@@ -20,3 +20,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Machine-local Claude Code settings (hooks etc.; absolute paths, not portable)
+.claude/settings.local.json
